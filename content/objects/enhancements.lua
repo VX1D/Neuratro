@@ -291,3 +291,98 @@ SMODS.Enhancement:take_ownership("m_stone", {
 		end
 	end,
 }, true)
+
+-- Blue Seal / Restrained
+-- Reduces level of played poker hand by 1 when played
+SMODS.Seal({
+	key = "restrained_seal",
+	loc_txt = {
+		name = "Restrained",
+		label = "Restrained",
+		text = {
+			"Reduces {C:attention}level{} of played",
+			"{C:attention}poker hand{} by {C:attention}1{}",
+		},
+	},
+	atlas = "neuroEnh",
+	pos = { x = 2, y = 1 },
+	badge_colour = HEX("3B6B9E"),
+	discovered = false,
+	unlocked = true,
+	calculate = function(self, card, context)
+		if context.before then
+			-- Check if this card is in the played hand
+			for _, pcard in ipairs(context.full_hand) do
+				if pcard == card then
+					-- Reduce the level of the poker hand
+					local hand_name = context.scoring_name
+					if hand_name and G.GAME.hands[hand_name] then
+						local hand_data = G.GAME.hands[hand_name]
+						if hand_data.level and hand_data.level > 1 then
+							hand_data.level = hand_data.level - 1
+							-- Recalculate hand levels
+							G.GAME.hands[hand_name].level = hand_data.level
+							return {
+								message = "-1 Level",
+								colour = G.C.BLUE,
+							}
+						end
+					end
+					break
+				end
+			end
+		end
+	end,
+})
+
+-- Purple Seal / Infection
+-- Scores no Chips and all other abilities are disabled
+-- Curses a random card held in hand with Infection when discarded
+SMODS.Seal({
+	key = "infection_seal",
+	loc_txt = {
+		name = "Infection",
+		label = "Infection",
+		text = {
+			"{C:attention}Disables{} all abilities",
+			"and scores {C:attention}no chips{}",
+			"{C:attention}Curses{} a random card in hand",
+			"when {C:red}discarded{}",
+		},
+	},
+	atlas = "neuroEnh",
+	pos = { x = 3, y = 1 },
+	badge_colour = HEX("7B3FA0"),
+	discovered = false,
+	unlocked = true,
+	calculate = function(self, card, context)
+		-- Disable scoring
+		if context.main_scoring and context.cardarea == G.play then
+			return {
+				chips = 0,
+				message = "Infected!",
+				colour = G.C.PURPLE,
+			}
+		end
+		
+		-- Curse random card on discard
+		if context.discard and context.other_card == card then
+			if G and G.hand and G.hand.cards and #G.hand.cards > 0 then
+				-- Pick random card from hand
+				local target_card = G.hand.cards[math.random(#G.hand.cards)]
+				if target_card then
+					G.E_MANAGER:add_event(Event({
+						func = function()
+							target_card:set_seal("infection_seal")
+							return true
+						end,
+					}))
+					return {
+						message = "Spread!",
+						colour = G.C.PURPLE,
+					}
+				end
+			end
+		end
+	end,
+})
