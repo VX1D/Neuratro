@@ -75,7 +75,17 @@ SMODS.Blind({
 })
 
 local function clear_chatspam_debuffs()
-	local hiyori = Neuratro.has_joker("j_hiyori")
+	local hiyori = false
+	for _, joker in ipairs(G.jokers and G.jokers.cards or {}) do
+		if joker.config.center.key == "j_hiyori" then
+			hiyori = true
+		end
+	end
+	for _, joker in ipairs(G.playbook_extra and G.playbook_extra.cards or {}) do
+		if joker.config.center.key == "j_hiyori" then
+			hiyori = true
+		end
+	end
 	for _, v in ipairs(G.playing_cards or {}) do
 		SMODS.debuff_card(v, false, "chatspam")
 		if v:is_suit("Hearts") and hiyori then
@@ -99,12 +109,12 @@ SMODS.Blind({
 	mult = 2,
 	boss = { min = 3 },
 	loc_vars = function(self)
-		return { vars = { Neuratro.get_probability_scale() } }
+		return { vars = { (G and G.GAME and G.GAME.probabilities and G.GAME.probabilities.normal) or 1 } }
 	end,
 	boss_colour = HEX("F5DD8A"),
 	set_blind = function(self)
 		for _, pcard in ipairs(G.playing_cards or {}) do
-			if Neuratro.roll_simple_odds(6, "chatspam") then
+			if pseudorandom("chatspam") <= (((G and G.GAME and G.GAME.probabilities and G.GAME.probabilities.normal) or 1) / 6) then
 				SMODS.debuff_card(pcard, true, "chatspam")
 			end
 		end

@@ -13,6 +13,6 @@ SMODS.Suit({
 	hc_ui_atlas = "neurosuitui",
 	lc_ui_atlas = "neurosuitui",
 	in_pool = function(self, args)
-		return G.GAME.pool_flags.glorpdeck
+		return G and G.GAME and G.GAME.pool_flags and G.GAME.pool_flags.glorpdeck
 	end,
 })

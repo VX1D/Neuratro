@@ -9,6 +9,16 @@ function Game:init_game_object()
 end
 
 SMODS.current_mod.reset_game_globals = function(run_start)
+	if not (G and G.GAME and G.GAME.round_resets) then
+		return
+	end
+	if G.GAME.bosses_used and G.P_BLINDS then
+		for k, v in pairs(G.P_BLINDS) do
+			if v.boss and G.GAME.bosses_used[k] == nil then
+				G.GAME.bosses_used[k] = 0
+			end
+		end
+	end
 	if G.GAME.playbook_last_ante ~= G.GAME.round_resets.ante then
 		G.GAME.playbook_flush_of_hearts_discarded_this_ante = false
 		G.GAME.playbook_last_ante = G.GAME.round_resets.ante

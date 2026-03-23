@@ -1,9 +1,3 @@
-local function handle_filtersister_trigger()
-	for _, joker in ipairs(Neuratro.find_jokers("j_filtersister")) do
-		joker.ability.extra.xmult = joker.ability.extra.xmult + joker.ability.extra.upg
-	end
-end
-
 SMODS.Edition({
 	shader = "filtered",
 	key = "filtered",
@@ -34,17 +28,33 @@ SMODS.Edition({
 		return true
 	end,
 	calculate = function(self, card, context)
-		local is_retrigger = (context.repetition and (context.cardarea == G.play or context.cardarea == G.hand or context.cardarea == G.deck)) 
-			or (context.retrigger_joker_check and not context.retrigger_joker)
-		
-		if is_retrigger and context.other_card == card then
-			if Neuratro.coin_flip("filter") then
-				handle_filtersister_trigger()
+		if context.repetition and (context.cardarea == G.play or context.cardarea == G.hand or context.cardarea == G.deck) and context.other_card == card then
+			if pseudorandom("filter", 1, 2) == 1 then
+				for _, area in ipairs({ G.jokers and G.jokers.cards or {}, G.playbook_extra and G.playbook_extra.cards or {} }) do
+					for pos, joker in ipairs(area) do
+						if joker.config.center.key == "j_filtersister" then
+							area[pos].ability.extra.xmult = area[pos].ability.extra.xmult + area[pos].ability.extra.upg
+						end
+					end
+				end
 				SMODS.debuff_card(card, true, "filter")
 				return { repetitions = 0, message = "[Filtered]" }
 			end
-			local msg = context.retrigger_joker_check and "Again!" or nil
-			return { repetitions = 1, message = msg }
+			return { repetitions = 1 }
+		end
+		if context.retrigger_joker_check and not context.retrigger_joker and context.other_card == card then
+			if pseudorandom("filter", 1, 2) == 1 then
+				for _, area in ipairs({ G.jokers and G.jokers.cards or {}, G.playbook_extra and G.playbook_extra.cards or {} }) do
+					for pos, joker in ipairs(area) do
+						if joker.config.center.key == "j_filtersister" then
+							area[pos].ability.extra.xmult = area[pos].ability.extra.xmult + area[pos].ability.extra.upg
+						end
+					end
+				end
+				SMODS.debuff_card(card, true, "filter")
+				return { repetitions = 0, message = "[Filtered]" }
+			end
+			return { repetitions = 1, message = "Again!" }
 		end
 	end,
 	on_apply = function(card)

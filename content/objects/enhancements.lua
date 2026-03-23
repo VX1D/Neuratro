@@ -1,9 +1,6 @@
 --Enhancement
-local sea = Neuratro.sea
-
--- DEPRECATED: Use Neuratro.get_probability_scale() instead
 local function enhancement_probability_scale()
-	return Neuratro.get_probability_scale()
+	return (G and G.GAME and G.GAME.probabilities and G.GAME.probabilities.normal) or 1
 end
 
 SMODS.Enhancement({
@@ -36,9 +33,29 @@ SMODS.Enhancement({
 	config = { extra = { money = 2 } },
 	calculate = function(self, card, context)
 		if context.main_scoring and context.cardarea == G.play then
-			local highlighted = Neuratro.find_joker_undebuffed("j_highlighted")
-			if highlighted then
-				return { xmult = highlighted.ability.extra.xmult }
+			local msg = false
+			local msg_pos = 1
+			local area = nil
+			for pos, joker in ipairs(G.jokers and G.jokers.cards or {}) do
+				if joker.config.center.key == "j_highlighted" and not joker.debuff then
+					msg = true
+					msg_pos = pos
+					area = joker.area
+					break
+				end
+			end
+			if not msg and G.playbook_extra then
+				for pos, joker in ipairs(G.playbook_extra and G.playbook_extra.cards or {}) do
+					if joker.config.center.key == "j_highlighted" and not joker.debuff then
+						msg = true
+						msg_pos = pos
+						area = joker.area
+						break
+					end
+				end
+			end
+			if msg and area and area.cards and area.cards[msg_pos] then
+				return { xmult = area.cards[msg_pos].ability.extra.xmult }
 			else
 				return { dollars = card.ability.extra.money }
 			end
@@ -230,9 +247,29 @@ SMODS.Enhancement:take_ownership("m_steel", {
 	end,
 	calculate = function(self, card, context)
 		if context.main_scoring and context.cardarea == G.hand then
-			local pipes = Neuratro.find_joker_undebuffed("j_pipes")
-			if pipes then
-				return { xmult = pipes.ability.extra.xmult, message = "Pipe!", sound = "pipe_sfx" }
+			local pipes = false
+			local pipes_pos = 1
+			local area = nil
+			for pos, joker in ipairs(G.jokers and G.jokers.cards or {}) do
+				if joker.config.center.key == "j_pipes" and not joker.debuff then
+					pipes = true
+					pipes_pos = pos
+					area = joker.area
+					break
+				end
+			end
+			if G.playbook_extra then
+				for pos, joker in ipairs(G.playbook_extra and G.playbook_extra.cards or {}) do
+					if joker.config.center.key == "j_pipes" and not joker.debuff then
+						pipes = true
+						pipes_pos = pos
+						area = joker.area
+						break
+					end
+				end
+			end
+			if pipes and area and area.cards and area.cards[pipes_pos] then
+				return { xmult = area.cards[pipes_pos].ability.extra.xmult, message = "Pipe!", sound = "pipe_sfx" }
 			else
 				return { xmult = card.ability.extra.xmult }
 			end
@@ -247,9 +284,12 @@ SMODS.Enhancement:take_ownership("m_stone", {
 	replace_base_card = true,
 	calculate = function(self, card, context)
 		if context.main_scoring and context.cardarea == G.play then
-			local breadge = Neuratro.find_joker("j_breadge")
-			if breadge then
-				return { mult = breadge.ability.extra.mult or 21 }
+			for _, area in ipairs({ G.jokers and G.jokers.cards or {}, G.playbook_extra and G.playbook_extra.cards or {} }) do
+				for _, joker in ipairs(area) do
+					if joker.config.center.key == "j_breadge" then
+						return { mult = joker.ability.extra.mult or 21 }
+					end
+				end
 			end
 			return { chips = card.ability.extra.chips }
 		end

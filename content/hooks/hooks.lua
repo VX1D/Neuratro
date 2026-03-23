@@ -1,7 +1,17 @@
 local er_ref = end_round
 function end_round()
 	er_ref()
-	local hiyori = Neuratro.has_joker("j_hiyori")
+	local hiyori = false
+	for _, joker in ipairs(G.jokers and G.jokers.cards or {}) do
+		if joker.config.center.key == "j_hiyori" then
+			hiyori = true
+		end
+	end
+	for _, joker in ipairs(G.playbook_extra and G.playbook_extra.cards or {}) do
+		if joker.config.center.key == "j_hiyori" then
+			hiyori = true
+		end
+	end
 	for _, v in ipairs(G.playing_cards or {}) do
 		SMODS.debuff_card(v, false, "filter")
 		if v:is_suit("Hearts") and hiyori then
@@ -197,7 +207,19 @@ end
 
 local op_ref = open_booster
 function open_booster(self, booster, edition, skin, skip_anims)
-	local chimps = Neuratro.has_joker("j_chimps")
+	local chimps = false
+	for _, joker in ipairs(G.jokers and G.jokers.cards or {}) do
+		if joker.config.center.key == "j_chimps" then
+			chimps = true
+			break
+		end
+	end
+	for _, joker in ipairs(G.playbook_extra and G.playbook_extra.cards or {}) do
+		if joker.config.center.key == "j_chimps" then
+			chimps = true
+			break
+		end
+	end
 	if chimps and booster and booster.ability and booster.ability.name:find("Arcana") and booster.config and booster.config.extra then
 		booster.config.extra = booster.config.extra + 1
 	end
