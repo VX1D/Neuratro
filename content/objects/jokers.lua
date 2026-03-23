@@ -2253,6 +2253,7 @@ SMODS.Joker({
 				card.ability.extra.xmult = card.ability.extra.xmult + card.ability.extra.upg
 				card.ability.extra.left = 0
 				card.ability.extra.upglevel = card.ability.extra.upglevel + 1
+				--NOTE: the 6 is the max number of sprites in the spritesheet. Increase it if more are added to Long Drive. If the 6th index is reached wrap around to the first again
 				card.children.center:set_sprite_pos({ x = card.ability.extra.upglevel % 6, y = 1 })
 				return { message = "Upgrade!" }
 			end
@@ -4139,11 +4140,13 @@ SMODS.Joker({
 	eternal_compat = true,
 	perishable_compat = true,
 	pos = { x = 0, y = 0 },
-	config = { extra = {
-		sel_card = 1,
-		min = 1,
-		max = 10,
-	} },
+	config = {
+		extra = {
+			sel_card = 1,
+			min = 1,
+			max = 10,
+		},
+	},
 	loc_vars = function(self, info_queue, center)
 		return { vars = { center.ability.extra.min, center.ability.extra.max } }
 	end,
