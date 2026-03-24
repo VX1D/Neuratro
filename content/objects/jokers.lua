@@ -5050,7 +5050,7 @@ SMODS.Joker({
 	},
 	atlas = "neuroCustomJokers",
 	pools = { ["neurJoker"] = true },
-	rarity = 3,
+	rarity = "dev",
 	cost = 8,
 	unlocked = true,
 	discovered = false,
@@ -5157,9 +5157,9 @@ SMODS.Joker({
 	loc_txt = {
 		name = "Tomaniacs",
 		text = {
-			"{C:attention}Combo punch{} all {C:attention}Bloody{}",
-			"cards until no {C:attention}Bloody{} cards",
-			"are scored",
+			"{C:attention}Upgrades {C:red}Toma{}{C:attention}{}: Combo punch{}",
+			"all {C:attention}Bloody{} cards until",
+			"no {C:attention}Bloody{} cards are scored",
 		},
 	},
 	credits = {
